@@ -1,0 +1,4 @@
+#EXTINF:-1,Discovery
+#EXTINF:-1, Discovery Channel HD
+#EXTINF:-1,Discovery Science HD
+#EXTINF:-1,Animal Planet HD
