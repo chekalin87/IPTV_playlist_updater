@@ -6,6 +6,7 @@ channels = {}
 
 def create_playlist():
     all_channels_file = open('all_channels.m3u', "w", encoding="utf-8")
+    all_channels_file.write("#EXTM3U\n")
     for key in channels:
         key = key.strip()
         channels[key] = channels[key].strip()
@@ -75,7 +76,7 @@ def downloading_playlists():
         except:
             print("Сервис " + links[i] + " не отвечает")
         else:
-            print("скчал плейлист с " + links[i])
+            print("скчал плейлист " + links[i])
         source_file = open('sources/' + str(i) + '.txt', "wb")
         source_file.write(ufr.content)
         source_file.close()
