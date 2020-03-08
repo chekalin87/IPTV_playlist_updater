@@ -15,38 +15,41 @@ def create_playlist():
     all_channels_file.close()
     list_file = open('list.txt', "r", encoding="utf-8")
 
-
-    out_file = open('iptvchannels.m3u', "w", encoding="utf-8")
+    out_file = open('OUT.m3u', "w", encoding="utf-8")
     out_file.write("#EXTM3U\n")
     for line in list_file:
         if "#EXTINF:" in line:
+            splited_line = line.split(",", 1)
+            formating_line = splited_line[0].strip() + "," + splited_line[1].strip()
             for key in channels:
-                if key.strip() == line.strip():
+                if key == formating_line:
                     out_file.write(key + "\n")
                     out_file.write(channels[key] + "\n")
     list_file.close()
     out_file.close()
 
 
-def update():  # Создаёт общий словарь с каналами channels ПЕРЕДЕЛАТЬ имена файлов!!!
+def update():  # Создаёт общий словарь с каналами channels
     stuck = []
 
     i = 0
     list_file = open('list.txt', "r", encoding="utf-8")
     stuck = list_file.readlines()
     list_file.close()
-    while os.path.exists('sources/' + str(i) + '.txt'):
-        source_file_r = open('sources/' + str(i) + '.txt', "r", encoding="utf-8")
+    for file in os.listdir("sources/"):
+        source_file_r = open('sources/' + file, "r", encoding="utf-8")
         stuck = stuck + source_file_r.readlines()
         source_file_r.close()
         i += 1
 
     for line in stuck:
         if "#EXTINF:" in line:
+            splited_line = line.split(",", 1)
+            formating_line = splited_line[0].strip() + "," + splited_line[1].strip()
             if "#EXTGRP:" in stuck[stuck.index(line) + 1]:
-                channels[line.strip()] = stuck[stuck.index(line) + 2]
+                channels[formating_line.strip()] = stuck[stuck.index(line) + 2]
             else:
-                channels[line.strip()] = stuck[stuck.index(line) + 1]
+                channels[formating_line.strip()] = stuck[stuck.index(line) + 1]
 
 
 def search_links():
@@ -60,7 +63,7 @@ def search_links():
         links_file.close()
 
 
-def downloading_playlists():  #Качает (перезаписывает) файлы исходных плейлистов ПЕРЕДЕЛАТЬ имена файлов!!!
+def downloading_playlists():  # Качает (перезаписывает) файлы исходных плейлистов
     try:
         os.mkdir("sources")
     except:
@@ -69,7 +72,6 @@ def downloading_playlists():  #Качает (перезаписывает) фа�
         print("Нет папки \"sources\", создал")
 
     files = os.listdir("sources")
-    print(files)
     for var in files:
         try:
             os.remove("sources/" + var)
@@ -79,13 +81,16 @@ def downloading_playlists():  #Качает (перезаписывает) фа�
             print("удалил: sources/" + var)
 
     for i in range(len(links)):
+        link = links[i].strip()
+        sp_l = link.split("/")
+        name = sp_l[-1]
         try:
-            ufr = requests.get(links[i].strip())
+            ufr = requests.get(link)
         except:
-            print("Сервис " + links[i].strip() + " не отвечает")
+            print("Сервис " + link + " не отвечает")
         else:
-            print("скчал плейлист " + links[i].strip())
-            source_file = open("sources/" + str(i) + ".txt", "wb")
+            print("скчал плейлист " + link)
+            source_file = open("sources/" + name, "wb")
             source_file.write(ufr.content)
         finally:
             source_file.close()
@@ -95,7 +100,7 @@ links = search_links()
 downloading_playlists()
 update()
 create_playlist()
-print("Общая база каналов: " + str(channels))
+print("Общая база каналов:")
+for key in channels:
+    print(key + " >> " + channels[key])
 print("END")
-
-
