@@ -3,7 +3,7 @@ import requests
 import os
 
 channels = {}
-
+not_finded_channels =[]
 
 def close_program(code=0):
     input("\nВведи букву Хуй чтобы выйти: ")
@@ -11,6 +11,7 @@ def close_program(code=0):
 
 
 def create_playlist():
+    list = []
     all_channels_file = open('all_channels.m3u', "w", encoding="utf-8")
     all_channels_file.write("#EXTM3U\n")
     for key in channels:
@@ -19,11 +20,25 @@ def create_playlist():
         all_channels_file.write(key + "\n")
         all_channels_file.write(channels[key] + "\n")
     all_channels_file.close()
-    list_file = open('list.txt', "r", encoding="utf-8")
+
+    try:
+        list_file = open('list.txt', "r", encoding="utf-8")
+    except:
+        list_file = open('list.txt', "w", encoding="utf-8")
+        print("Нет файла \"list.txt\"...\nне переживай, я его уже создал,\nтебе нужно записать туда\nканалы со ссылками, короче ты понял.")
+        close_program(1)
+    else:
+        list = list_file.readlines()
+    finally:
+        list_file.close()
+    if list == []:
+        print("Ну бля...\nпустой \"list.txt\"...\nТы читал README?!!!")
+        close_program(1)
 
     out_file = open('OUT.m3u', "w", encoding="utf-8")
     out_file.write("#EXTM3U\n")
-    for line in list_file:
+    for line in list:
+        find_channel = False
         if "#EXTINF:" in line:
             splited_line = line.split(",", 1)
             formating_line = splited_line[0].strip() + "," + splited_line[1].strip()
@@ -31,35 +46,21 @@ def create_playlist():
                 if key == formating_line:
                     out_file.write(key + "\n")
                     out_file.write(channels[key] + "\n")
-    list_file.close()
+                    find_channel = True
+            if not find_channel:
+                not_finded_channels.append(formating_line)
+                out_file.write(line.strip() + "\n")
+                out_file.write(list[list.index(line)+1].strip() + "\n")
     out_file.close()
 
 
 def update():  # Создаёт общий словарь с каналами channels
     stuck = []
 
-    i = 0
-    try:
-        list_file = open('list.txt', "r", encoding="utf-8")
-    except:
-        list_file = open('list.txt', "w", encoding="utf-8")
-        print(
-            "Нет файла \"list.txt\"...\nне переживай, я его уже создал,\nтебе нужно записать туда\nканалы со ссылками, короче ты понял.")
-        close_program(1)
-    else:
-        stuck = list_file.readlines()
-    finally:
-        list_file.close()
-    if stuck == []:
-        print("Ну бля...\nпустой \"list.txt\"...\nТы читал README?!!!")
-        close_program(1)
-    list_file.close()
     for file in os.listdir("sources/"):
         source_file_r = open('sources/' + file, "r", encoding="utf-8")
         stuck = stuck + source_file_r.readlines()
         source_file_r.close()
-        i += 1
-
     for line in stuck:
         if "#EXTINF:" in line:
             splited_line = line.split(",", 1)
@@ -128,5 +129,10 @@ create_playlist()
 print("Общая база каналов:")
 for key in channels:
     print(key + " >> " + channels[key])
-print("Это конец ;)")
+if not_finded_channels != []:
+    print("Каналы:")
+    for i in not_finded_channels:
+        print(i)
+    print("не были найдены.")
+    print("Это конец ;)")
 close_program(0)
