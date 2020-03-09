@@ -1,7 +1,13 @@
+import sys
 import requests
 import os
 
 channels = {}
+
+
+def close_program(code=0):
+    input("\nВведи букву Хуй чтобы выйти: ")
+    sys.exit(code)
 
 
 def create_playlist():
@@ -33,8 +39,20 @@ def update():  # Создаёт общий словарь с каналами ch
     stuck = []
 
     i = 0
-    list_file = open('list.txt', "r", encoding="utf-8")
-    stuck = list_file.readlines()
+    try:
+        list_file = open('list.txt', "r", encoding="utf-8")
+    except:
+        list_file = open('list.txt', "w", encoding="utf-8")
+        print(
+            "Нет файла \"list.txt\"...\nне переживай, я его уже создал,\nтебе нужно записать туда\nканалы со ссылками, короче ты понял.")
+        close_program(1)
+    else:
+        stuck = list_file.readlines()
+    finally:
+        list_file.close()
+    if stuck == []:
+        print("Ну бля...\nпустой \"list.txt\"...\nТы читал README?!!!")
+        close_program(1)
     list_file.close()
     for file in os.listdir("sources/"):
         source_file_r = open('sources/' + file, "r", encoding="utf-8")
@@ -56,9 +74,16 @@ def search_links():
     try:
         links_file = open('links.txt', "r", encoding="utf-8")
     except:
-        print("Не смог открыть файл links.txt")
+        links_file = open('links.txt', "w", encoding="utf-8")
+        print(
+            "Нет файла \"links.txt\"...\nне переживай, я его уже создал,\nтебе нужно записать туда хоть одну ссылку на плейлист.")
+        close_program(1)
     else:
-        return links_file.readlines()
+        links_list = links_file.readlines()
+        if links_list == []:
+            print("\"links.txt\"пуст,\nтебе нужно записать туда хоть одну ссылку на плейлист.")
+            close_program(1)
+        return links_list
     finally:
         links_file.close()
 
@@ -89,9 +114,9 @@ def downloading_playlists():  # Качает (перезаписывает) фа
         except:
             print("Сервис " + link + " не отвечает")
         else:
-            print("скчал плейлист " + link)
             source_file = open("sources/" + name, "wb")
             source_file.write(ufr.content)
+            print("скчал плейлист " + link)
         finally:
             source_file.close()
 
@@ -103,4 +128,5 @@ create_playlist()
 print("Общая база каналов:")
 for key in channels:
     print(key + " >> " + channels[key])
-print("END")
+print("Это конец ;)")
+close_program(0)
