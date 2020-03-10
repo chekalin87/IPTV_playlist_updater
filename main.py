@@ -14,11 +14,12 @@ def create_playlist():
     list = []
     all_channels_file = open('all_channels.m3u', "w", encoding="utf-8")
     all_channels_file.write("#EXTM3U\n")
-    for key in channels:
+
+    for key, value in sorted(channels.items()):
         key = key.strip()
-        channels[key] = channels[key].strip()
+        value = value.strip()
         all_channels_file.write(key + "\n")
-        all_channels_file.write(channels[key] + "\n")
+        all_channels_file.write(value + "\n")
     all_channels_file.close()
 
     try:
@@ -41,11 +42,11 @@ def create_playlist():
         find_channel = False
         if "#EXTINF:" in line:
             splited_line = line.split(",", 1)
-            formating_line = splited_line[0].strip() + "," + splited_line[1].strip()
-            for key in channels:
+            formating_line = "#EXTINF:-1," + splited_line[1].strip()
+            for key, value in channels.items():
                 if key == formating_line:
                     out_file.write(key + "\n")
-                    out_file.write(channels[key] + "\n")
+                    out_file.write(value.strip() + "\n")
                     find_channel = True
             if not find_channel:
                 not_finded_channels.append(formating_line)
@@ -64,7 +65,7 @@ def update():  # Создаёт общий словарь с каналами ch
     for line in stuck:
         if "#EXTINF:" in line:
             splited_line = line.split(",", 1)
-            formating_line = splited_line[0].strip() + "," + splited_line[1].strip()
+            formating_line = "#EXTINF:-1," + splited_line[1].strip()
             if "#EXTGRP:" in stuck[stuck.index(line) + 1]:
                 channels[formating_line.strip()] = stuck[stuck.index(line) + 2]
             else:
@@ -126,9 +127,7 @@ links = search_links()
 downloading_playlists()
 update()
 create_playlist()
-print("Общая база каналов:")
-for key in channels:
-    print(key + " >> " + channels[key])
+
 if not_finded_channels != []:
     print("Каналы:")
     for i in not_finded_channels:
