@@ -1,4 +1,9 @@
 
+def dictKeys_to_sortList(mixed_dict):
+    names = list(mixed_dict.keys())
+    names.sort()
+    return names
+
 
 def generate_base(source_text):  # Принимает значение словаря (stuck[k])
     base = {}

@@ -16,7 +16,7 @@ groups = ["Ублюдские", "Тошнотворные", "Дибильные"
 
 root = tk.Tk()
 root.title("PLUG v G0.1")
-root.geometry("500x500+2000+100")
+root.geometry("800x600+2000+100")
 
 
 def get_geometry():
@@ -121,10 +121,11 @@ group_combobox.pack()
 
 update_btn.pack(side=tk.BOTTOM)
 
-
-for k, v in formation.generate_base(stuck["all"]).items():
-    print(k, v)
-    origin_channel_listbox.insert(tk.END, k)
+channels = formation.generate_base(stuck["all"])
+names = formation.dictKeys_to_sortList(channels)
+for i in names:
+    print(i, channels[i])
+    origin_channel_listbox.insert(tk.END, i)
 
 
 root.mainloop()
