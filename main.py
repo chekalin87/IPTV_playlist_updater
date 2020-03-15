@@ -10,8 +10,8 @@ import pars
 import formation
 
 stuck = pars.extract_source()
-
-all_channels = []
+source = "all"
+channels = dict()
 groups = ["Ублюдские", "Тошнотворные", "Дибильные", "Конченные", "Ебанутые"]
 
 root = tk.Tk()
@@ -36,8 +36,8 @@ def get_geometry():
 
 def add_channel(event):
     """ЗАГЛУШКА"""
-    channel_listbox.insert(tk.END, name_entry.get() + ">>>" + addr_entry.get())
-    origin_channel_listbox.insert(tk.END, name_entry.get() + ">>>" + addr_entry.get())
+    channel_listbox.insert(tk.END, name_entry.get() + ">>>" + addr_combobox.get())
+    origin_channel_listbox.insert(tk.END, name_entry.get() + ">>>" + addr_combobox.get())
     print("типа добавляю канал")
 
 
@@ -48,7 +48,7 @@ def change_name(event):
 
 def change_addr(event):
     """ЗАГЛУШКА"""
-    print(addr_entry.get())
+    print(addr_combobox.get())
 
 
 def pick_up(event):
@@ -61,18 +61,51 @@ def update_playlists(event):
     stuck = pars.extract_source()
 
 
+def fill_origin_listbox(event):
+    origin_channel_listbox.delete(0, tk.END)
+    global channels
+    channels = formation.generate_base(stuck[sources_combobox.get()])
+    names = formation.dictKeys_to_sortList(channels)
+    for i in names:
+        origin_channel_listbox.insert(tk.END, i)
+    print(sources_combobox.get())
+    for k, v in channels.items():
+        print(k, v)
+
+
+def select_channel(event):
+    index = origin_channel_listbox.curselection()
+    print(index)
+    name = origin_channel_listbox.get(index[0])
+    print(name)
+    name_entry.delete(0, tk.END)
+    name_entry.insert(0, name)
+    addr_combobox.config(values=channels[name])
+    print(channels[name])
+    addr_combobox.update()
+
+
 top_frame = tk.Frame(root, height=30)
 
 list_frame = tk.Frame(root)
-channel_listbox = tk.Listbox(list_frame)
-cl_scroll = tk.Scrollbar(list_frame)
+
+left_frame = tk.Frame(list_frame)
+sources_combobox = ttk.Combobox(left_frame, values=stuck["sources"])
+sources_combobox.current(newindex=0)
+sources_combobox.bind("<<ComboboxSelected>>", fill_origin_listbox)
+
+origin_channel_listbox = tk.Listbox(left_frame)
+ocl_scroll = tk.Scrollbar(left_frame)
+ocl_scroll["command"] = origin_channel_listbox.yview
+origin_channel_listbox["yscrollcommand"] = ocl_scroll.set
+origin_channel_listbox.bind("<Return>", pick_up)
+origin_channel_listbox.bind("<<ListboxSelect>>", select_channel)
+
+right_frame = tk.Frame(list_frame)
+channel_listbox = tk.Listbox(right_frame)
+cl_scroll = tk.Scrollbar(right_frame)
 cl_scroll["command"] = channel_listbox.yview
 channel_listbox["yscrollcommand"] = cl_scroll.set
-origin_channel_listbox = tk.Listbox(list_frame)
-acl_scroll = tk.Scrollbar(list_frame)
-acl_scroll["command"] = origin_channel_listbox.yview
-origin_channel_listbox["yscrollcommand"] = acl_scroll.set
-origin_channel_listbox.bind("<Return>", pick_up)
 
 sort_frame = tk.Frame(root)
 add_btn = tk.Button(sort_frame, text="add")
@@ -86,8 +119,8 @@ name_label = tk.Label(edit_frame, text="Название:")
 name_entry = tk.Entry(edit_frame, width=60)
 name_entry.bind("<Return>", change_name)
 addr_label = tk.Label(edit_frame, text="Адрес:")
-addr_entry = tk.Entry(edit_frame, width=60)
-addr_entry.bind("<Return>", change_addr)
+addr_combobox = ttk.Combobox(edit_frame)
+addr_combobox.bind("<Return>", change_addr)
 group_label = tk.Label(edit_frame, text="Группа:")
 group_menu = tk.Menu(edit_frame)
 root.config(menu=group_menu)
@@ -101,8 +134,11 @@ update_btn.bind("<Button-1>", update_playlists)
 top_frame.pack(side=tk.TOP, fill="x", expand=False)
 list_frame.pack(side=tk.LEFT, fill="both", expand=True)
 
+left_frame.pack(side=tk.LEFT, fill="both", expand=True)
+sources_combobox.pack()
+right_frame.pack(side=tk.RIGHT, fill="both", expand=True)
 origin_channel_listbox.pack(side=tk.LEFT, fill="both", expand=True)
-acl_scroll.pack(side=tk.LEFT, fill="both")
+ocl_scroll.pack(side=tk.LEFT, fill="both")
 channel_listbox.pack(side=tk.LEFT, fill="both", expand=True)
 cl_scroll.pack(side=tk.LEFT, fill="both")
 
@@ -115,17 +151,11 @@ edit_frame.pack()
 name_label.pack()
 name_entry.pack(fill="both", expand=True)
 addr_label.pack()
-addr_entry.pack(fill="both", expand=True)
+addr_combobox.pack(fill="both", expand=True)
 group_label.pack()
 group_combobox.pack()
 
 update_btn.pack(side=tk.BOTTOM)
-
-channels = formation.generate_base(stuck["all"])
-names = formation.dictKeys_to_sortList(channels)
-for i in names:
-    print(i, channels[i])
-    origin_channel_listbox.insert(tk.END, i)
 
 
 root.mainloop()

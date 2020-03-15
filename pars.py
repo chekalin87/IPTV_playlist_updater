@@ -54,11 +54,14 @@ def downloading_playlists():  # Качает (перезаписывает) фа
 
 
 def extract_source():
+    """Возвращает словарь, в словаре имена файлов, all и sources. all - обьединйнный венигрет из файлов, sources -
+    имена файлов"""
     downloading_playlists()
-    stuck = {"all": []}
+    stuck = {"all": [], "sources": ["all"]}
     for file in os.listdir("sources/"):
         source_file_r = open('sources/' + file, "r", encoding="utf-8")
         stuck[file] = source_file_r.readlines()
         stuck["all"] += stuck[file]
+        stuck["sources"].append(file)
         source_file_r.close()
     return stuck
