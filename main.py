@@ -37,7 +37,6 @@ def get_geometry():
 def add_channel(event):
     """ЗАГЛУШКА"""
     channel_listbox.insert(tk.END, name_entry.get() + ">>>" + addr_combobox.get())
-    origin_channel_listbox.insert(tk.END, name_entry.get() + ">>>" + addr_combobox.get())
     print("типа добавляю канал")
 
 
@@ -69,20 +68,24 @@ def fill_origin_listbox(event):
     for i in names:
         origin_channel_listbox.insert(tk.END, i)
     print(sources_combobox.get())
-    for k, v in channels.items():
-        print(k, v)
+    # for k, v in channels.items():
+    #     print(k, v)
 
 
 def select_channel(event):
     index = origin_channel_listbox.curselection()
-    print(index)
-    name = origin_channel_listbox.get(index[0])
-    print(name)
-    name_entry.delete(0, tk.END)
-    name_entry.insert(0, name)
-    addr_combobox.config(values=channels[name])
-    print(channels[name])
-    addr_combobox.update()
+    if not index == ():
+        links = []
+        name = origin_channel_listbox.get(index[0])
+        print(name)
+        name_entry.delete(0, tk.END)
+        name_entry.insert(0, name)
+        for link in channels[name]:
+            links.append(link)
+        addr_label.config(text="Адрес:(" + str(len(links)) + ")")
+        addr_combobox.config(values=links)
+        addr_combobox.current(newindex=0)
+        print(links)
 
 
 top_frame = tk.Frame(root, height=30)
@@ -100,6 +103,7 @@ ocl_scroll["command"] = origin_channel_listbox.yview
 origin_channel_listbox["yscrollcommand"] = ocl_scroll.set
 origin_channel_listbox.bind("<Return>", pick_up)
 origin_channel_listbox.bind("<<ListboxSelect>>", select_channel)
+
 
 right_frame = tk.Frame(list_frame)
 channel_listbox = tk.Listbox(right_frame)
@@ -157,5 +161,5 @@ group_combobox.pack()
 
 update_btn.pack(side=tk.BOTTOM)
 
-
+fill_origin_listbox(1)
 root.mainloop()
