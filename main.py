@@ -12,11 +12,12 @@ import formation
 stuck = pars.extract_source()
 source = "all"
 channels = dict()
+output_channels = dict()
 groups = ["Ублюдские", "Тошнотворные", "Дибильные", "Конченные", "Ебанутые"]
 
 root = tk.Tk()
-root.title("PLUG v G0.1")
-root.geometry("800x600+2000+100")
+root.title("PLUG v G0.3")
+root.geometry("800x600+200+200")
 
 
 def get_geometry():
@@ -35,9 +36,64 @@ def get_geometry():
 
 
 def add_channel(event):
-    """ЗАГЛУШКА"""
-    channel_listbox.insert(tk.END, name_entry.get() + ">>>" + addr_combobox.get())
-    print("типа добавляю канал")
+    name = name_entry.get()
+    link = addr_combobox.get()
+    if name != "":
+        if name in output_channels:
+            print("Канал уже добавлен")
+            if link != output_channels[name][0]:
+                output_channels[name][0] = link
+                print("меняю ссылку")
+        else:
+            x = [link]
+            output_channels[name] = x
+            channel_listbox.insert(tk.END, name)
+            print("добавляю канал " + name)
+        print(output_channels)
+    else:
+        print("Ничего не выбрано")
+
+
+def del_channel(event):
+    index = channel_listbox.curselection()
+    if index != ():
+        name = channel_listbox.get(index[0])
+        print(name)
+        channel_listbox.delete(index[0])
+        output_channels.pop(name)
+        channel_listbox.select_set(index[0])
+    else:
+        print("Ничего не выбрано")
+
+
+def up_channel(event):
+    index = channel_listbox.curselection()
+    if index != ():
+        if index[0] != 0:
+            over_name = channel_listbox.get(index[0]-1)
+            name = channel_listbox.get(index[0])
+            channel_listbox.delete(index[0]-1)
+            channel_listbox.insert(index[0]-1, name)
+            channel_listbox.delete(index[0])
+            channel_listbox.insert(index[0], over_name)
+            channel_listbox.select_set(index[0]-1)
+    else:
+        print("Ничего не выбрано")
+
+
+def down_channel(event):
+    index = channel_listbox.curselection()
+    if index != ():
+        if index[0] < channel_listbox.size()-1:
+            under_name = channel_listbox.get(index[0] + 1)
+            name = channel_listbox.get(index[0])
+            channel_listbox.delete(index[0] + 1)
+            channel_listbox.insert(index[0] + 1, name)
+            channel_listbox.delete(index[0])
+            channel_listbox.insert(index[0], under_name)
+            channel_listbox.select_set(index[0] + 1)
+    else:
+        print("Ничего не выбрано")
 
 
 def change_name(event):
@@ -50,15 +106,11 @@ def change_addr(event):
     print(addr_combobox.get())
 
 
-def pick_up(event):
-    """ЗАГЛУШКА"""
-    print("Забираю канал в плейлист")
-
-
 def update_playlists(event):
     global stuck
     stuck = pars.extract_source()
     fill_origin_listbox(1)
+    sources_combobox.config(values=stuck["sources"])
 
 
 def fill_origin_listbox(event):
@@ -69,16 +121,26 @@ def fill_origin_listbox(event):
     for i in names:
         origin_channel_listbox.insert(tk.END, i)
     print(sources_combobox.get())
-    # for k, v in channels.items():
-    #     print(k, v)
 
 
 def select_channel(event):
+    index = channel_listbox.curselection()
+    if not index == ():
+        links = []
+        name = channel_listbox.get(index[0])
+        name_entry.delete(0, tk.END)
+        name_entry.insert(0, name)
+        links.append(output_channels[name][0])
+        addr_label.config(text="Адрес:(" + str(len(links)) + ")")
+        addr_combobox.config(values=links)
+        addr_combobox.current(newindex=0)
+
+
+def select_origin_channel(event):
     index = origin_channel_listbox.curselection()
     if not index == ():
         links = []
         name = origin_channel_listbox.get(index[0])
-        print(name)
         name_entry.delete(0, tk.END)
         name_entry.insert(0, name)
         for link in channels[name]:
@@ -86,7 +148,6 @@ def select_channel(event):
         addr_label.config(text="Адрес:(" + str(len(links)) + ")")
         addr_combobox.config(values=links)
         addr_combobox.current(newindex=0)
-        print(links)
 
 
 def check_link(event):
@@ -113,12 +174,11 @@ origin_channel_listbox = tk.Listbox(left_frame)
 ocl_scroll = tk.Scrollbar(left_frame)
 ocl_scroll["command"] = origin_channel_listbox.yview
 origin_channel_listbox["yscrollcommand"] = ocl_scroll.set
-origin_channel_listbox.bind("<Return>", pick_up)
-origin_channel_listbox.bind("<<ListboxSelect>>", select_channel)
-
+origin_channel_listbox.bind("<<ListboxSelect>>", select_origin_channel)
 
 right_frame = tk.Frame(list_frame)
 channel_listbox = tk.Listbox(right_frame)
+channel_listbox.bind("<<ListboxSelect>>", select_channel)
 cl_scroll = tk.Scrollbar(right_frame)
 cl_scroll["command"] = channel_listbox.yview
 channel_listbox["yscrollcommand"] = cl_scroll.set
@@ -127,8 +187,11 @@ sort_frame = tk.Frame(root)
 add_btn = tk.Button(sort_frame, text="add")
 add_btn.bind("<Button-1>", add_channel)
 up_btn = tk.Button(sort_frame, text="/\\")
+up_btn.bind("<Button-1>", up_channel)
 down_btn = tk.Button(sort_frame, text="\/")
+down_btn.bind("<Button-1>", down_channel)
 del_btn = tk.Button(sort_frame, text="del")
+del_btn.bind("<Button-1>", del_channel)
 
 edit_frame = tk.Frame(root)
 name_label = tk.Label(edit_frame, text="Название:")
@@ -138,7 +201,7 @@ addr_label = tk.Label(edit_frame, text="Адрес:")
 addr_combobox = ttk.Combobox(edit_frame)
 addr_combobox.bind("<Return>", change_addr)
 action_addr_frame = tk.Frame(edit_frame)
-check_btn = tk.Button(action_addr_frame, text="проверить")
+check_btn = tk.Button(action_addr_frame, text="Смотреть")
 check_btn.bind("<Button-1>", check_link)
 
 group_label = tk.Label(edit_frame, text="Группа:")
@@ -148,7 +211,6 @@ group_menu.add_command(label="test")
 group_combobox = ttk.Combobox(edit_frame, values=groups)
 update_btn = tk.Button(root, text="UPDATE")
 update_btn.bind("<Button-1>", update_playlists)
-
 
 # packs
 top_frame.pack(side=tk.TOP, fill="x", expand=False)

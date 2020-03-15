@@ -23,3 +23,8 @@ def generate_base(source_text):  # Принимает значение слов�
                 link = source_text[source_text.index(line) + 1].strip()
                 base[name].add(link)
     return base
+
+
+def create_playlist(file_name):
+    out_file = open(file_name, "w", encoding="utf-8")
+    out_file.close()
