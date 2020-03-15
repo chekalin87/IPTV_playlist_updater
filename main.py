@@ -58,6 +58,7 @@ def pick_up(event):
 def update_playlists(event):
     global stuck
     stuck = pars.extract_source()
+    fill_origin_listbox(1)
 
 
 def fill_origin_listbox(event):
@@ -86,6 +87,17 @@ def select_channel(event):
         addr_combobox.config(values=links)
         addr_combobox.current(newindex=0)
         print(links)
+
+
+def check_link(event):
+    link = addr_combobox.get()
+    file_name = 'check_link.m3u'
+    link_file = open(file_name, "w", encoding="utf-8")
+    link_file.write("#EXTM3U\n")
+    link_file.write("#EXTINF:-1," + link + "\n")
+    link_file.write(link)
+    link_file.close()
+    os.startfile(file_name)
 
 
 top_frame = tk.Frame(root, height=30)
@@ -125,6 +137,10 @@ name_entry.bind("<Return>", change_name)
 addr_label = tk.Label(edit_frame, text="Адрес:")
 addr_combobox = ttk.Combobox(edit_frame)
 addr_combobox.bind("<Return>", change_addr)
+action_addr_frame = tk.Frame(edit_frame)
+check_btn = tk.Button(action_addr_frame, text="проверить")
+check_btn.bind("<Button-1>", check_link)
+
 group_label = tk.Label(edit_frame, text="Группа:")
 group_menu = tk.Menu(edit_frame)
 root.config(menu=group_menu)
@@ -156,6 +172,8 @@ name_label.pack()
 name_entry.pack(fill="both", expand=True)
 addr_label.pack()
 addr_combobox.pack(fill="both", expand=True)
+action_addr_frame.pack(side=tk.TOP, fill="both", expand=True)
+check_btn.pack(side=tk.LEFT)
 group_label.pack()
 group_combobox.pack()
 
