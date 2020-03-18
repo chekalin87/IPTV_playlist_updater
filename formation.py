@@ -1,3 +1,6 @@
+import tkinter as tk
+from tkinter import filedialog as fd
+
 
 def dictKeys_to_sortList(mixed_dict):
     names = list(mixed_dict.keys())
@@ -24,7 +27,3 @@ def generate_base(source_text):  # Принимает значение слов�
                 base[name].add(link)
     return base
 
-
-def create_playlist(file_name):
-    out_file = open(file_name, "w", encoding="utf-8")
-    out_file.close()

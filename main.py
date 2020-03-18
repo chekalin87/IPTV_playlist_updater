@@ -6,18 +6,10 @@ import os
 import math
 import tkinter as tk
 import tkinter.ttk as ttk
+from tkinter import filedialog as fd
 import pars
 import formation
-
-stuck = pars.extract_source()
-source = "all"
-channels = dict()
-output_channels = dict()
-groups = ["Ублюдские", "Тошнотворные", "Дибильные", "Конченные", "Ебанутые"]
-
-root = tk.Tk()
-root.title("PLUG v G0.3")
-root.geometry("800x600+200+200")
+import generate
 
 
 def get_geometry():
@@ -49,7 +41,6 @@ def add_channel(event):
             output_channels[name] = x
             channel_listbox.insert(tk.END, name)
             print("добавляю канал " + name)
-        print(output_channels)
     else:
         print("Ничего не выбрано")
 
@@ -58,10 +49,13 @@ def del_channel(event):
     index = channel_listbox.curselection()
     if index != ():
         name = channel_listbox.get(index[0])
-        print(name)
         channel_listbox.delete(index[0])
         output_channels.pop(name)
-        channel_listbox.select_set(index[0])
+        if index[0] != channel_listbox.size():
+            channel_listbox.select_set(index[0])
+        else:
+            channel_listbox.select_set(index[0] - 1)
+        print("удалил " + name)
     else:
         print("Ничего не выбрано")
 
@@ -113,6 +107,12 @@ def update_playlists(event):
     sources_combobox.config(values=stuck["sources"])
 
 
+def export_playlist():
+    file_name = fd.asksaveasfilename(filetypes=(("m3u files", "*.m3u"), ("All files", "*.*")))
+    names = channel_listbox.get(0, tk.END)
+    generate.generate_out_file(file_name, names, output_channels)
+
+
 def fill_origin_listbox(event):
     origin_channel_listbox.delete(0, tk.END)
     global channels
@@ -150,7 +150,7 @@ def select_origin_channel(event):
         addr_combobox.current(newindex=0)
 
 
-def check_link(event):
+def play_link(event):
     link = addr_combobox.get()
     file_name = 'check_link.m3u'
     link_file = open(file_name, "w", encoding="utf-8")
@@ -161,14 +161,34 @@ def check_link(event):
     os.startfile(file_name)
 
 
+stuck = pars.extract_source()
+channels = dict()
+output_channels = dict()
+groups = ["Ублюдские", "Тошнотворные", "Дибильные", "Конченные", "Ебанутые"]
+
+root = tk.Tk()
+root.title("PLUG v G0.4")
+root.geometry("1000x600+200+200")
+
+menu_bar = tk.Menu(root)
+root.config(menu=menu_bar)
+file_menu = tk.Menu(menu_bar)
+menu_bar.add_cascade(label="Файл", menu=file_menu)
+file_menu.add_command(label="Экспортровать как...", command=export_playlist)
+file_menu.add_command(label="Экспорт (пока не пашет)")    # ----
+
+
 top_frame = tk.Frame(root, height=30)
 
 list_frame = tk.Frame(root)
 
 left_frame = tk.Frame(list_frame)
-sources_combobox = ttk.Combobox(left_frame, values=stuck["sources"])
+sources_head_frame = tk.Frame(left_frame)
+sources_combobox = ttk.Combobox(sources_head_frame, values=stuck["sources"])
 sources_combobox.current(newindex=0)
 sources_combobox.bind("<<ComboboxSelected>>", fill_origin_listbox)
+update_btn = tk.Button(sources_head_frame, text="UPDATE")
+update_btn.bind("<Button-1>", update_playlists)
 
 origin_channel_listbox = tk.Listbox(left_frame)
 ocl_scroll = tk.Scrollbar(left_frame)
@@ -177,6 +197,9 @@ origin_channel_listbox["yscrollcommand"] = ocl_scroll.set
 origin_channel_listbox.bind("<<ListboxSelect>>", select_origin_channel)
 
 right_frame = tk.Frame(list_frame)
+output_head_frame = tk.Frame(right_frame)
+output_combobox = ttk.Combobox(output_head_frame)
+
 channel_listbox = tk.Listbox(right_frame)
 channel_listbox.bind("<<ListboxSelect>>", select_channel)
 cl_scroll = tk.Scrollbar(right_frame)
@@ -202,23 +225,22 @@ addr_combobox = ttk.Combobox(edit_frame)
 addr_combobox.bind("<Return>", change_addr)
 action_addr_frame = tk.Frame(edit_frame)
 check_btn = tk.Button(action_addr_frame, text="Смотреть")
-check_btn.bind("<Button-1>", check_link)
+check_btn.bind("<Button-1>", play_link)
 
 group_label = tk.Label(edit_frame, text="Группа:")
-group_menu = tk.Menu(edit_frame)
-root.config(menu=group_menu)
-group_menu.add_command(label="test")
 group_combobox = ttk.Combobox(edit_frame, values=groups)
-update_btn = tk.Button(root, text="UPDATE")
-update_btn.bind("<Button-1>", update_playlists)
 
 # packs
 top_frame.pack(side=tk.TOP, fill="x", expand=False)
 list_frame.pack(side=tk.LEFT, fill="both", expand=True)
 
 left_frame.pack(side=tk.LEFT, fill="both", expand=True)
-sources_combobox.pack()
+sources_head_frame.pack()
+sources_combobox.pack(side=tk.LEFT)
+update_btn.pack(side=tk.RIGHT)
 right_frame.pack(side=tk.RIGHT, fill="both", expand=True)
+output_head_frame.pack()
+output_combobox.pack()
 origin_channel_listbox.pack(side=tk.LEFT, fill="both", expand=True)
 ocl_scroll.pack(side=tk.LEFT, fill="both")
 channel_listbox.pack(side=tk.LEFT, fill="both", expand=True)
@@ -238,8 +260,6 @@ action_addr_frame.pack(side=tk.TOP, fill="both", expand=True)
 check_btn.pack(side=tk.LEFT)
 group_label.pack()
 group_combobox.pack()
-
-update_btn.pack(side=tk.BOTTOM)
 
 fill_origin_listbox(1)
 root.mainloop()
