@@ -1,5 +1,4 @@
-import tkinter as tk
-from tkinter import filedialog as fd
+# -*- coding: utf-8 -*-
 
 
 def dictKeys_to_sortList(mixed_dict):
@@ -26,4 +25,3 @@ def generate_base(source_text):  # Принимает значение слов�
                 link = source_text[source_text.index(line) + 1].strip()
                 base[name].add(link)
     return base
-
