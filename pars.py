@@ -57,7 +57,7 @@ def downloading_playlists():  # Качает (перезаписывает) фа
 
 
 def extract_source():
-    """Возвращает словарь, в словаре имена файлов, all и sources. all - обьединйнный венигрет из файлов, sources -
+    """Возвращает словарь, в словаре имена файлов, all и sources. all - обьединённый венигрет из файлов, sources -
     имена файлов"""
     downloading_playlists()
     stuck = {"all": [], "sources": ["all"]}

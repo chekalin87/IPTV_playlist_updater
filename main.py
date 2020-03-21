@@ -8,7 +8,6 @@ from tkinter import filedialog as fd
 import pars
 import formation
 import generate
-import log
 
 
 def display_information(txt):
@@ -108,6 +107,16 @@ def update_playlists(event):
     sources_combobox.config(values=stuck["sources"])
 
 
+def open_playlist():
+    file_name = fd.askopenfilename(filetypes=(("m3u files", "*.m3u"), ("All files", "*.*")))
+    global output_channels, groups
+    output_channels, names, groups = formation.reading_playlist(file_name)
+    channel_listbox.delete(0, tk.END)
+    for chanel in names:
+        channel_listbox.insert(tk.END, chanel)
+        group_combobox.config(values=groups)
+
+
 def export_playlist():
     file_name = fd.asksaveasfilename(filetypes=(("m3u files", "*.m3u"), ("All files", "*.*")))
     names = channel_listbox.get(0, tk.END)
@@ -174,16 +183,17 @@ def play_link(event):
 stuck = pars.extract_source()
 channels = dict()
 output_channels = dict()
-groups = ["", "Ублюдские", "Тошнотворные", "Дибильные", "Конченные", "Ебанутые"]
+groups = [""]
 
 root = tk.Tk()
-root.title("PLUG v G0.5")
+root.title("PLUG v G1.0")
 root.geometry("1000x600")
 
 menu_bar = tk.Menu(root)
 root.config(menu=menu_bar)
 file_menu = tk.Menu(menu_bar)
 menu_bar.add_cascade(label="Файл", menu=file_menu)
+file_menu.add_command(label="Открыть...", command=open_playlist)
 file_menu.add_command(label="Экспортровать как...", command=export_playlist)
 file_menu.add_command(label="Экспорт (пока не пашет)")  # ----
 
