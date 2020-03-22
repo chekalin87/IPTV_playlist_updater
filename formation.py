@@ -43,7 +43,7 @@ def reading_playlist(file_name):
                     base[name] = []
                 splited_group = stuck[stuck.index(line) + 1].split(":", 1)
                 group = splited_group[1].strip()
-                if not group in groups:
+                if not (group in groups):
                     groups.append(group)
                 link = stuck[stuck.index(line) + 2].strip()
                 base[name].insert(0, link)
@@ -53,5 +53,12 @@ def reading_playlist(file_name):
                     base[name] = []
                 link = stuck[stuck.index(line) + 1].strip()
                 base[name].insert(0, link)
-                base[name].insert(1, "")
+                if "group-title" in splited_line[0]:
+                    splited_group = splited_line[0].split("\"")
+                    group = splited_group[1].strip()
+                    if not (group in groups):
+                        groups.append(group)
+                    base[name].insert(1, group)
+                else:
+                    base[name].insert(1, "")
     return base, names, groups
