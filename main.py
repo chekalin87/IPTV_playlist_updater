@@ -108,7 +108,7 @@ def update_playlists(event):
 
 
 def open_playlist():
-    file_name = fd.askopenfilename(filetypes=(("m3u files", "*.m3u"), ("All files", "*.*")))
+    file_name = fd.askopenfilename(filetypes=(("m3u files", "*.m3u"), ("m3u8 files", "*.m3u8"), ("All files", "*.*")))
     global output_channels, groups
     output_channels, names, groups = formation.reading_playlist(file_name)
     channel_listbox.delete(0, tk.END)
@@ -118,7 +118,8 @@ def open_playlist():
 
 
 def export_playlist():
-    file_name = fd.asksaveasfilename(filetypes=(("m3u files", "*.m3u"), ("All files", "*.*")))
+    file_name = fd.asksaveasfilename(filetypes=(("m3u files", "*.m3u"), ("m3u8 files", "*.m3u8"), ("All files", "*.*")),
+                                     defaultextension=".m3u")
     names = channel_listbox.get(0, tk.END)
     generate.generate_out_file(file_name, names, output_channels)
 
@@ -186,7 +187,7 @@ output_channels = dict()
 groups = [""]
 
 root = tk.Tk()
-root.title("PLUG v G1.0")
+root.title("PLUG v G1.0.1")
 root.geometry("1000x600")
 
 menu_bar = tk.Menu(root)
