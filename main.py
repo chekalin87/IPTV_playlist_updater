@@ -136,23 +136,22 @@ def fill_origin_listbox(event):
 def select_channel(event):
     index = channel_listbox.curselection()
     if not index == ():
-        links = []
         name = channel_listbox.get(index[0])
+        links = [output_channels[name][0]]
         name_entry.delete(0, tk.END)
         name_entry.insert(0, name)
-        i, k = 0, 0
+        i = 0
         try:
             for link in channels[name]:
-                links.append(link)
-                if link == output_channels[name][0]:
-                    k = i
-                i += 1
+                if link != output_channels[name][0]:
+                    links.append(link)
+                    i += 1
+            display_information("Найдено " + str(i) + " доп. ссылок для " + name)
         except:
-            links.append(output_channels[name][0])
-            display_information("Канал не найден в исходниках")
+            display_information("Канал не найден в базе")
         addr_label.config(text="Адрес:(" + str(len(links)) + ")")
         addr_combobox.config(values=links)
-        addr_combobox.current(newindex=k)
+        addr_combobox.current(newindex=0)
         group_combobox.current(groups.index(output_channels[name][1]))
 
 
@@ -168,6 +167,10 @@ def select_origin_channel(event):
         addr_label.config(text="Адрес:(" + str(len(links)) + ")")
         addr_combobox.config(values=links)
         addr_combobox.current(newindex=0)
+        if name in output_channels:
+            display_information(name + " есть в плейлисте")
+        else:
+            display_information("Выбран " + name)
 
 
 def play_link(event):
@@ -187,7 +190,7 @@ output_channels = dict()
 groups = [""]
 
 root = tk.Tk()
-root.title("PLUG v G1.0.1")
+root.title("PLUG v G1.0.2")
 root.geometry("1000x600")
 
 menu_bar = tk.Menu(root)
