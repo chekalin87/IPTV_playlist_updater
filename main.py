@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 
-
 import os
 import tkinter as tk
 import tkinter.ttk as ttk
