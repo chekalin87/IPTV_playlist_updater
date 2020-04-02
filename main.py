@@ -30,7 +30,10 @@ def add_channel(event):
             display_information("добавил канал " + name)
     else:
         display_information("Ничего не выбрано")
-
+    for i in range(channel_listbox.size()):
+        if name == channel_listbox.get(i):
+            channel_listbox.select_set(i)
+            select_channel("<<ListboxSelect>>")
 
 def del_channel(event):
     index = channel_listbox.curselection()
@@ -189,7 +192,7 @@ output_channels = dict()
 groups = [""]
 
 root = tk.Tk()
-root.title("PLUG v G1.0.2")
+root.title("PLUG v G1.0.3")
 root.geometry("1000x600")
 
 menu_bar = tk.Menu(root)
