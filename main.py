@@ -149,7 +149,6 @@ def select_channel(event):
                 if link != output_channels[name][0]:
                     links.append(link)
                     i += 1
-            display_information("Найдено " + str(i) + " доп. ссылок для " + name)
         except:
             display_information("Канал не найден в базе")
         addr_label.config(text="Адрес:(" + str(len(links)) + ")")
@@ -170,10 +169,6 @@ def select_origin_channel(event):
         addr_label.config(text="Адрес:(" + str(len(links)) + ")")
         addr_combobox.config(values=links)
         addr_combobox.current(newindex=0)
-        if name in output_channels:
-            display_information(name + " есть в плейлисте")
-        else:
-            display_information("Выбран " + name)
 
 
 def play_link(event):
@@ -188,22 +183,34 @@ def play_link(event):
 
 
 def search_channel(event):
+    origin_count = 0
+    out_count = 0
     origin_size = origin_channel_listbox.size()
     channel_size = channel_listbox.size()
     name = search_entry.get()
     for i in range(origin_size):
-        if name == origin_channel_listbox.get(i):
-            origin_channel_listbox.select_set(i)
+        if name.upper() in origin_channel_listbox.get(i).upper():
+            origin_channel_listbox.itemconfig(i, bg="YELLOW")
             select_channel("<<ListboxSelect>>")
-            origin_channel_listbox.yview_moveto(1 / (origin_size / i))
+            try:
+                origin_channel_listbox.yview_moveto(1 / (origin_size / i))
+            except ZeroDivisionError:
+                origin_channel_listbox.yview_moveto(0)
+            origin_count += 1
+        else:
+            origin_channel_listbox.itemconfig(i, bg="WHITE")
     for i in range(channel_size):
-        if name == channel_listbox.get(i):
-            channel_listbox.select_set(i)
+        if name.upper() in channel_listbox.get(i).upper():
+            channel_listbox.itemconfig(i, bg="YELLOW")
             select_channel("<<ListboxSelect>>")
             try:
                 channel_listbox.yview_moveto(1 / (channel_size / i))
-            except:
+            except ZeroDivisionError:
                 channel_listbox.yview_moveto(0)
+            out_count += 1
+        else:
+            channel_listbox.itemconfig(i, bg="WHITE")
+    display_information("Нашёл " + str(origin_count) + " в исходн. / " + str(out_count) + " в листе.")
 
 
 stuck = pars.extract_source()
@@ -212,7 +219,7 @@ output_channels = dict()
 groups = [""]
 
 root = tk.Tk()
-root.title("PLUG v G1.0.4")
+root.title("PLUG v G1.0.41")
 root.geometry("1000x600")
 
 menu_bar = tk.Menu(root)
@@ -246,6 +253,7 @@ output_head_frame = tk.Frame(right_frame)
 search_entry = tk.Entry(output_head_frame)
 search_btn = tk.Button(output_head_frame, text="FIND")
 search_btn.bind("<Button-1>", search_channel)
+search_entry.bind("<Return>", search_channel)
 
 channel_listbox = tk.Listbox(right_frame)
 channel_listbox.bind("<<ListboxSelect>>", select_channel)

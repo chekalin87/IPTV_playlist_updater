@@ -1,4 +1,4 @@
-Version G1.0.4
+Version G1.0.41
 
     Feature:
 - добавлен поиск
