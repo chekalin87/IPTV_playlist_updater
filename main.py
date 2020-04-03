@@ -35,6 +35,7 @@ def add_channel(event):
             channel_listbox.select_set(i)
             select_channel("<<ListboxSelect>>")
 
+
 def del_channel(event):
     index = channel_listbox.curselection()
     if index != ():
@@ -186,13 +187,32 @@ def play_link(event):
     os.startfile(file_name)
 
 
+def search_channel(event):
+    origin_size = origin_channel_listbox.size()
+    channel_size = channel_listbox.size()
+    name = search_entry.get()
+    for i in range(origin_size):
+        if name == origin_channel_listbox.get(i):
+            origin_channel_listbox.select_set(i)
+            select_channel("<<ListboxSelect>>")
+            origin_channel_listbox.yview_moveto(1 / (origin_size / i))
+    for i in range(channel_size):
+        if name == channel_listbox.get(i):
+            channel_listbox.select_set(i)
+            select_channel("<<ListboxSelect>>")
+            try:
+                channel_listbox.yview_moveto(1 / (channel_size / i))
+            except:
+                channel_listbox.yview_moveto(0)
+
+
 stuck = pars.extract_source()
 channels = dict()
 output_channels = dict()
 groups = [""]
 
 root = tk.Tk()
-root.title("PLUG v G1.0.3")
+root.title("PLUG v G1.0.4")
 root.geometry("1000x600")
 
 menu_bar = tk.Menu(root)
@@ -223,7 +243,9 @@ origin_channel_listbox.bind("<<ListboxSelect>>", select_origin_channel)
 
 right_frame = tk.Frame(list_frame)
 output_head_frame = tk.Frame(right_frame)
-output_combobox = ttk.Combobox(output_head_frame)
+search_entry = tk.Entry(output_head_frame)
+search_btn = tk.Button(output_head_frame, text="FIND")
+search_btn.bind("<Button-1>", search_channel)
 
 channel_listbox = tk.Listbox(right_frame)
 channel_listbox.bind("<<ListboxSelect>>", select_channel)
@@ -267,7 +289,8 @@ sources_combobox.pack(side=tk.LEFT)
 update_btn.pack(side=tk.RIGHT)
 right_frame.pack(side=tk.RIGHT, fill="both", expand=True)
 output_head_frame.pack()
-output_combobox.pack()
+search_entry.pack(side=tk.LEFT)
+search_btn.pack(side=tk.RIGHT)
 origin_channel_listbox.pack(side=tk.LEFT, fill="both", expand=True)
 ocl_scroll.pack(side=tk.LEFT, fill="both")
 channel_listbox.pack(side=tk.LEFT, fill="both", expand=True)
