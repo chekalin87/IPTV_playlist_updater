@@ -180,6 +180,7 @@ def play_link(event):
     link_file.write(link)
     link_file.close()
     os.startfile(file_name)
+    display_information("Не все плееры поддерживают потоковое видео...")
 
 
 def search_channel(event):
@@ -219,6 +220,7 @@ output_channels = dict()
 groups = [""]
 
 root = tk.Tk()
+root.iconbitmap('icon.ico')
 root.title("PLUG v G1.0.41")
 root.geometry("1000x600")
 
