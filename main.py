@@ -8,7 +8,7 @@ import pars
 import formation
 import generate
 
-title = "PLUG v1.0.5"
+title = "PLUG v1.0.6"
 icon = "icon.ico"
 size_window = "1000x600"
 
@@ -138,12 +138,10 @@ def select_channel(event):
         links = [output_channels[name][0]]
         name_entry.delete(0, tk.END)
         name_entry.insert(0, name)
-        i = 0
         try:
             for link in channels[name]:
                 if link != output_channels[name][0]:
                     links.append(link)
-                    i += 1
         except:
             display_information("Канал не найден в базе")
         addr_label.config(text="Адрес:(" + str(len(links)) + ")")
@@ -207,6 +205,28 @@ def search_channel(event):
         else:
             channel_listbox.itemconfig(i, bg="WHITE")
     display_information("Нашёл " + str(origin_count) + " в исходн. / " + str(out_count) + " в листе.")
+
+
+def auto_update(event):
+    channel_size = channel_listbox.size()
+    for i in range(channel_size):
+        name = channel_listbox.get(i)
+        find = False
+        not_find = False
+        try:
+            for link in channels[name]:
+                if link == output_channels[name][0]:
+                    find = True
+                else:
+                    not_find = True
+        except:
+            channel_listbox.itemconfig(i, bg="tomato")
+        if find == True and not_find == True:
+            channel_listbox.itemconfig(i, bg="SkyBlue")
+        elif find == True and not_find == False:
+            channel_listbox.itemconfig(i, bg="SeaGreen1")
+        elif find == False and not_find == True:
+            channel_listbox.itemconfig(i, bg="tomato")
 
 
 stuck = pars.extract_source()
@@ -289,6 +309,9 @@ check_btn = tk.Button(buttons_frame, text="Смотреть")
 check_btn.bind("<Button-1>", play_link)
 apply_btn = tk.Button(buttons_frame, text="Применить")
 apply_btn.bind("<Button-1>", add_channel)
+
+auto_update_btn = tk.Button(root, text="Найти\nобновы")
+auto_update_btn.bind("<Button-1>", auto_update)
 info_label = tk.Label(root, text="...")
 
 # packs
@@ -324,6 +347,7 @@ group_combobox.pack()
 buttons_frame.pack()
 check_btn.pack(side=tk.LEFT)
 apply_btn.pack()
+auto_update_btn.pack(side=tk.TOP)
 info_label.pack(side=tk.BOTTOM, fill="both")
 
 fill_origin_listbox(1)
