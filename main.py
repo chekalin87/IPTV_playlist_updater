@@ -9,6 +9,9 @@ import formation
 import generate
 
 title = "PLUG v1.0.5"
+icon = "icon.ico"
+size_window = "1000x600"
+
 
 def display_information(txt):
     info_label.config(text=txt)
@@ -29,7 +32,7 @@ def add_channel(event):
             output_channels[name] = x
             channel_listbox.insert(tk.END, name)
             display_information("добавил канал " + name)
-        change_group(None)  #None - заглушка
+        change_group(None)  # None - заглушка
     else:
         display_information("Ничего не выбрано")
     for i in range(channel_listbox.size()):
@@ -212,9 +215,12 @@ output_channels = dict()
 groups = [""]
 
 root = tk.Tk()
-root.iconbitmap('icon.ico')
+try:
+    root.iconbitmap(icon)
+except:
+    print("нет иконки")
 root.title(title)
-root.geometry("1000x600")
+root.geometry(size_window)
 
 menu_bar = tk.Menu(root)
 root.config(menu=menu_bar)
