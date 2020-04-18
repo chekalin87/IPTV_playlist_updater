@@ -8,6 +8,7 @@ import pars
 import formation
 import generate
 
+title = "PLUG v1.0.5"
 
 def display_information(txt):
     info_label.config(text=txt)
@@ -28,6 +29,7 @@ def add_channel(event):
             output_channels[name] = x
             channel_listbox.insert(tk.END, name)
             display_information("добавил канал " + name)
+        change_group(None)  #None - заглушка
     else:
         display_information("Ничего не выбрано")
     for i in range(channel_listbox.size()):
@@ -81,26 +83,16 @@ def down_channel(event):
         display_information("Ничего не выбрано")
 
 
-def change_name(event):
-    """ЗАГЛУШКА"""
-    print(name_entry.get())
-
-
-def change_addr(event):
-    """ЗАГЛУШКА"""
-    print(addr_combobox.get())
-
-
 def change_group(event):
-    if name_entry.get() in channel_listbox.get(0, tk.END):
+    name = name_entry.get()
+    if name in channel_listbox.get(0, tk.END):
         group_name = group_combobox.get().strip()
-        if group_combobox.current() == -1:
+        if group_combobox.current() == -1 and group_name != "":
             groups.append(group_name)
             group_combobox.config(values=groups)
-        output_channels[name_entry.get()][1] = group_name
-        display_information("Группа изменена")
-    else:
-        display_information("Канал не выбран")
+        if output_channels[name][1] != group_name:
+            display_information("Группа изменена")
+        output_channels[name][1] = group_name
 
 
 def update_playlists(event):
@@ -221,7 +213,7 @@ groups = [""]
 
 root = tk.Tk()
 root.iconbitmap('icon.ico')
-root.title("PLUG v G1.0.41")
+root.title(title)
 root.geometry("1000x600")
 
 menu_bar = tk.Menu(root)
@@ -274,19 +266,23 @@ del_btn = tk.Button(sort_frame, text="del")
 del_btn.bind("<Button-1>", del_channel)
 
 edit_frame = tk.Frame(root)
-name_label = tk.Label(edit_frame, text="Название:")
-name_entry = tk.Entry(edit_frame, width=60)
-name_entry.bind("<Return>", change_name)
-addr_label = tk.Label(edit_frame, text="Адрес:")
-addr_combobox = ttk.Combobox(edit_frame)
-addr_combobox.bind("<Return>", change_addr)
-action_addr_frame = tk.Frame(edit_frame)
-check_btn = tk.Button(action_addr_frame, text="Смотреть")
-check_btn.bind("<Button-1>", play_link)
+action_areas_frame = tk.Frame(edit_frame)
+name_label = tk.Label(action_areas_frame, text="Название:")
+name_entry = tk.Entry(action_areas_frame, width=60)
+name_entry.bind("<Return>", add_channel)
+addr_label = tk.Label(action_areas_frame, text="Адрес:")
+addr_combobox = ttk.Combobox(action_areas_frame)
+addr_combobox.bind("<Return>", add_channel)
 
-group_label = tk.Label(edit_frame, text="Группа:")
-group_combobox = ttk.Combobox(edit_frame, values=groups)
+group_label = tk.Label(action_areas_frame, text="Группа:")
+group_combobox = ttk.Combobox(action_areas_frame, values=groups)
 group_combobox.bind("<Return>", change_group)
+
+buttons_frame = tk.Frame(edit_frame)
+check_btn = tk.Button(buttons_frame, text="Смотреть")
+check_btn.bind("<Button-1>", play_link)
+apply_btn = tk.Button(buttons_frame, text="Применить")
+apply_btn.bind("<Button-1>", add_channel)
 info_label = tk.Label(root, text="...")
 
 # packs
@@ -316,10 +312,12 @@ name_label.pack()
 name_entry.pack(fill="both", expand=True)
 addr_label.pack()
 addr_combobox.pack(fill="both", expand=True)
-action_addr_frame.pack(side=tk.TOP, fill="both", expand=True)
-check_btn.pack(side=tk.LEFT)
+action_areas_frame.pack(side=tk.TOP, fill="both", expand=True)
 group_label.pack()
 group_combobox.pack()
+buttons_frame.pack()
+check_btn.pack(side=tk.LEFT)
+apply_btn.pack()
 info_label.pack(side=tk.BOTTOM, fill="both")
 
 fill_origin_listbox(1)
